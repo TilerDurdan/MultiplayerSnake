@@ -3,42 +3,48 @@ import random
 
 game_on = False
 WIDTH, HEIGHT = 800, 600
-blocksize = 20
+BlockSize = 20
 apple = [0, 0, False, 0]  # global x y of current apple
 background = "#3caa3c"
-snakemoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
+SnakeMoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
 
 
-def Painter(coords, objecttype=1):  # 0 - поле ; 1 - яблоко ; 2 - голова ; 3 - тело ; 4 - препятствие
+def Painter( coords, objecttype = 1):
+
+    # 0 - поле ; 1 - яблоко ; 2 - голова ; 3 - тело ; 4 - препятствие/граница
+
     if objecttype == 1:
-        c.create_oval(coords[0] * blocksize, coords[1] * blocksize, coords[0] * blocksize + blocksize,
-                      coords[1] * blocksize + blocksize, width=0, fill="red", tag="apple")
+        c.create_oval(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                      coords[1] * BlockSize + BlockSize, width=0, fill="red", tag="apple")
     elif objecttype == 2:
-        c.create_rectangle(coords[0] * blocksize, coords[1] * blocksize, coords[0] * blocksize + blocksize,
-                           coords[1] * blocksize + blocksize, width=1, outline=background, fill="#f64a46", tag="head")
+        c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                           coords[1] * BlockSize + BlockSize, width=1, outline=background, fill="#f64a46", tag="head")
     elif objecttype == 3:
-        c.create_rectangle(coords[0] * blocksize, coords[1] * blocksize, coords[0] * blocksize + blocksize,
-                           coords[1] * blocksize + blocksize, width=1, outline=background, fill="#6a5d4d", tag="body")
+        c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                           coords[1] * BlockSize + BlockSize, width=1, outline=background, fill="#6a5d4d", tag="body")
     elif objecttype == 4:
-        c.create_rectangle(coords[0] * blocksize, coords[1] * blocksize, coords[0] * blocksize + blocksize,
-                           coords[1] * blocksize + blocksize, width=1, outline=background, fill="#7f4870", tag="Border")
+        c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                           coords[1] * BlockSize + BlockSize, width=1, outline=background, fill="#7f4870", tag="Border")
     elif objecttype == 0:
-        c.create_rectangle(coords[0] * blocksize, coords[1] * blocksize, coords[0] * blocksize + blocksize,
-                           coords[1] * blocksize + blocksize, width=0, fill=background)
+        c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                           coords[1] * BlockSize + BlockSize, width=0, fill=background)
 
 
 def changevector(event):
-    if player.vector[0] == -1 * snakemoves[str(event.keysym)][0] or player.vector[1] == -1 * \
-            snakemoves[str(event.keysym)][1]:
-        pass
+    if str(event.keysym) in SnakeMoves:
+        if player.vector[0] == -1 * SnakeMoves[str(event.keysym)][0] or player.vector[1] == -1 * \
+                SnakeMoves[str(event.keysym)][1]:
+            pass
+        else:
+            player.vector[0] = SnakeMoves[str(event.keysym)][0]
+            player.vector[1] = SnakeMoves[str(event.keysym)][1]
     else:
-        player.vector[0] = snakemoves[str(event.keysym)][0]
-        player.vector[1] = snakemoves[str(event.keysym)][1]
+        pass
 
 
 def spawnapple():
     # надо не забыть на сервере не ставить яблоки там где есть игроки
-    apple[0], apple[1] = random.randint(1, WIDTH / blocksize - 1), random.randint(1, HEIGHT / blocksize - 1)
+    apple[0], apple[1] = random.randint(1, WIDTH / BlockSize - 1), random.randint(1, HEIGHT / BlockSize - 1)
     apple[2] = True
     c.delete("apple")
     Painter(apple)
@@ -47,7 +53,7 @@ def checkoutstep():
 
     nextx, nexty = player.head[0], player.head[1]
 
-    if 0 <= nextx <= WIDTH/blocksize and 0 <= nexty <= HEIGHT/blocksize:
+    if 0 <= nextx <= WIDTH/BlockSize and 0 <= nexty <= HEIGHT/BlockSize:
         pass
     else:
         return False
@@ -91,21 +97,21 @@ class snake(object):
     vector = []  # движение по умолчанию
 
     def __init__(self):
-        self.head = [3, HEIGHT / (2 * blocksize)]
-        self.body = [[2, HEIGHT / (2 * blocksize)], [1, HEIGHT / (2 * blocksize)]]
-        self.vector = [snakemoves["Right"][0], snakemoves["Right"][1]]
+        self.head = [3, HEIGHT / (2 * BlockSize)]
+        self.body = [[2, HEIGHT / (2 * BlockSize)], [1, HEIGHT / (2 * BlockSize)]]
+        self.vector = [SnakeMoves["Right"][0], SnakeMoves["Right"][1]]
         Painter(self.head, 2)
         Painter(self.body[1], 3)
         Painter(self.body[0], 3)
 
     def move_app(self):
+    # анимация движения  если съели яблоко
 
         global  game_on
         c.delete("head")
         c.delete("apple")
 
         self.body.insert(0, [self.head[0], self.head[1]])
-        # self.body[0][0], self.body[0][1] = self.head[0], self.head[1]
         self.head[0], self.head[1] = self.head[0] + self.vector[0], self.head[1] + self.vector[1]
 
         Painter(self.head, 2)
@@ -115,6 +121,7 @@ class snake(object):
             game_on = False
 
     def move(self):
+    # анимация движения без яблока
 
         global game_on
 
