@@ -91,3 +91,4 @@ I) Сервер
 II) Клиент
 
 III) UI
+packing an exe https://www.youtube.com/watch?v=UZX5kH72Yx4
