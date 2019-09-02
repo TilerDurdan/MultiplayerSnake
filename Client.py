@@ -1,12 +1,14 @@
 from tkinter import Tk, Canvas
 import random
-import  socket
+
+
+
 
 
 game_on = False
 WIDTH, HEIGHT = 800, 600
 BlockSize = 20
-apple = [0, 0, False, 0]  # global x y of current apple T/F is for existing on board, last is for counter
+apple = [0, 0, False, 0]  # global x y of current apple
 background = "#3caa3c"
 SnakeMoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
 
@@ -17,7 +19,7 @@ def Painter(coords, objecttype = 1):
 
     if objecttype == 1:
         c.create_oval(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
-                      coords[1] * BlockSize + BlockSize, width=0, fill="#c92435", tag="apple")
+                      coords[1] * BlockSize + BlockSize, width=0, fill="red", tag="apple")
     elif objecttype == 2:
         c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
                            coords[1] * BlockSize + BlockSize, width=1, outline=background, fill="#f64a46", tag="head")
@@ -66,7 +68,6 @@ def checkoutstep():
         if nextx == b[0] and nexty == b[1]:
             return  False
     # на третьем шаге мы добавим наступление на хвосты других игроков
-    # или в случае выхода логики в сервер - на список всех змеек
 
     return  True
 
@@ -90,14 +91,12 @@ def main():
 
         root.after(175, main)
     else:
-        gameover = c.create_text(400, 300,  text="GAME OVER \nPress Space for new game", tag="gameovertext")
+        gameover = c.create_text(400, 300,  text="GAME OVER \n Press Space for new game", tag="gameovertext")
 
 
 
 class snake(object):
     head = []  # координаты головы
-    NickName = "UnnamedPlayer"
-    HeadColor = "#f64a46"
     body = []  # координаты хвоста
     vector = []  # движение по умолчанию
 
