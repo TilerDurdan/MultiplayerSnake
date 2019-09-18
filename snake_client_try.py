@@ -1,7 +1,10 @@
 import socket
 import pickle
+from threading import Timer
 import pygame
-import Client
+
+
+
 
 
 class Chatted(object):
@@ -45,8 +48,6 @@ def main():
     clock = pygame.time.Clock()
 
     while run:
-        clock.tick(60)
-
         chat.add_msg(str(input()))
         p2 = n.send(chat)
 
@@ -54,5 +55,7 @@ def main():
         print("Recieved ", p2.list)
 
 
-chat = Chatted()
-main()
+if __name__ == '__main__':
+
+    chat = Chatted()
+    main()
