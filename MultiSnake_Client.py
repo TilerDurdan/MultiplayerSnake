@@ -1,11 +1,12 @@
 #Клиент для мультиплеера
 from tkinter import * #Tk, Canvas, messagebox
 import random
-import  socket
+import Multisnake_network
+
 
 
 def firtsmenu():
-# функция которая
+
 
     global conn_from_menu
 

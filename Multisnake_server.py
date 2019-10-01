@@ -6,38 +6,7 @@ import pickle
 import threading
 from multiprocessing import Process, Queue, Lock, Event, current_process
 import queue
-import pygame
-import uuid
 import time
-
-
-class gamefield(object):
-
-    def __init__(self):
-        self.playerslist = {}
-
-
-class Player(object):
-
-    id = ''
-
-    def __init__(self):
-        self.id = self.newplayer()
-
-    def newplayer(self, playlist):
-
-        id = str(uuid.uuid4())[:5]
-        set_id = False
-
-        while not set_id:
-            if id not in playlist.playerslist:
-                playlist.playerslist[id] = self
-                set_id = True
-            else:
-                id = str(uuid.uuid4())[:5]
-
-        start_pos = self.gen_start(id)
-        return id
 
 
 def threaded_client(conn, chat_s, lock, mainq, event):
