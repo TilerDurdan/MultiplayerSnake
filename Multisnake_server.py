@@ -7,11 +7,12 @@ import threading
 from multiprocessing import Process, Queue, Lock, Event, current_process
 import queue
 import time
+import Multisnake_Gamefield
 
 
-def threaded_client(conn, chat_s, lock, mainq, event):
-    conn.send(pickle.dumps(chat_s))
-    global chat_server
+def threaded_client(conn, maing, lock, mainq, event):
+    conn.send(pickle.dumps(maing))
+    global maingame
     reply = ""
     while True:
         try:
@@ -29,26 +30,25 @@ def threaded_client(conn, chat_s, lock, mainq, event):
                 finally:
                     lock.release()
 
-                '''myq.put(data.list[-1])
+                '''myq.put(data.list[-1])'''
 
-                mainq.put('Update')'''
+                mainq.put('Update')
                 event.wait()
 
-                #time.sleep(0.1)
-                reply = chat_server
+
+                reply = "hello"
 
                 print("Received: ", data.list)
                 print("Sending : ", reply.list)
 
-            print("CHAT \n", chat_server.list)
-
             conn.sendall(pickle.dumps(reply))
-        except:
-            break
+        except error as e:
+            print(e)
+            #break
 
     print("Lost connection")
     conn.close()
-    return chat_s
+    return "Hello"
 
 
 def get_ip():
@@ -71,8 +71,8 @@ whereami = get_ip()
 # пишем где мы
 print(f"Server started at {whereami[0]}:{whereami[1]}")
 
-server = str(whereami[0])
-port = whereami[1]
+server = "127.0.0.1"#str(whereami[0])
+port = 5555#whereami[1]
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -88,7 +88,8 @@ print("Waiting for a connection, Server Started")
 
 # служебные штуки для очередей и событий
 lock = Lock()
-maingame = gamefield()
+maingame = Multisnake_Gamefield.GameField()
+
 
 event = threading.Event()
 
@@ -100,41 +101,18 @@ mainq = queue.Queue()
 
 if __name__ == '__main__':
 
-    currentuser = 0
-
-
-
     while True:
 
         connection, addr = s.accept()
         print("Connected to:", addr)
 
-        newconnection = threading.Thread(target=threaded_client, args=(connection, snake_server, lock, mainq, event))
+        newconnection = threading.Thread(target=threaded_client, args=(connection, maingame.playerslist, lock, mainq, event))
 
         newconnection.start()
         event.set()
         if not mainq.empty():
             mainq.get()
 
-            """
-                def newplayer(self, data):
-
-        id =  str(uuid.uuid4())[:5]
-        set_id = False
-        Nick = data[6:]
-
-
-
-        while not set_id:
-            if id not in self.idlist:
-                self.idlist.append([id, Nick, start_pos])
-                set_id = True
-            else:
-                id = str(uuid.uuid4())[:5]
-
-        start_pos = self.gen_start(id)
-        return id
-            """
 
             # вот тут из очереди надо будет гонять обновление карты относительно действий игроков из очереди
             while not myq.empty():

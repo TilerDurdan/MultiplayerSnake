@@ -1,8 +1,8 @@
 #Клиент для мультиплеера
 from tkinter import * #Tk, Canvas, messagebox
 import random
-import Multisnake_network
-
+from Multisnake_network import Network
+import Multisnake_Gamefield
 
 
 def firtsmenu():
@@ -50,6 +50,9 @@ def firtsmenu():
     return conn_from_menu
 
 
-conn_from_menu = ['', '']
+conn_from_menu = firtsmenu()
 
-print(firtsmenu())
+net = Network(conn_from_menu[0], conn_from_menu[1])
+p = net.getP()
+print(p)
+print(net.send(p))
