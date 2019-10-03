@@ -9,6 +9,9 @@ import queue
 import time
 import Multisnake_Gamefield
 
+class Splayer(object):
+    id = ''
+    vector = []
 
 def threaded_client(conn, maing, curplayer, lock, mainq, event):
 
