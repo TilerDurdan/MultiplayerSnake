@@ -10,9 +10,11 @@ import time
 import Multisnake_Gamefield
 
 
-def threaded_client(conn, maing, lock, mainq, event):
-    conn.send(pickle.dumps(maing))
+def threaded_client(conn, maing, curplayer, lock, mainq, event):
+
     global maingame
+    #для теста, добавляю в вызов curentplayer и пробую его вместо maingame.playerslist отправить
+    conn.send(pickle.dumps(curplayer))
     reply = ""
     while True:
         try:
@@ -36,10 +38,10 @@ def threaded_client(conn, maing, lock, mainq, event):
                 event.wait()
 
 
-                reply = "hello"
+                reply = maingame.playerslist
 
-                print("Received: ", data.list)
-                print("Sending : ", reply.list)
+                print("Received: ", data)
+                print("Sending : ", reply)
 
             conn.sendall(pickle.dumps(reply))
         except error as e:
@@ -48,7 +50,7 @@ def threaded_client(conn, maing, lock, mainq, event):
 
     print("Lost connection")
     conn.close()
-    return "Hello"
+    return maingame
 
 
 def get_ip():
@@ -105,8 +107,10 @@ if __name__ == '__main__':
 
         connection, addr = s.accept()
         print("Connected to:", addr)
-
-        newconnection = threading.Thread(target=threaded_client, args=(connection, maingame.playerslist, lock, mainq, event))
+        pl = Multisnake_Gamefield.Player(maingame)
+        for i in range(30):
+            print(maingame.gamematrix[i], end="\n")
+        newconnection = threading.Thread(target=threaded_client, args=(connection, maingame, pl, lock, mainq, event))
 
         newconnection.start()
         event.set()
