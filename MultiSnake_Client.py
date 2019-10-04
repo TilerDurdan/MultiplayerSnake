@@ -74,7 +74,7 @@ def main():
             for j in res[i].body:
                 drawbody(j, False)
 
-    root.after(50, main)
+    root.after(200, main)
 
 
 def changevector(event):
@@ -128,7 +128,7 @@ for i in ans.keys():
 
 
 
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 600, 800
 BlockSize = 20
 apple = []
 background = "#3caa3c"

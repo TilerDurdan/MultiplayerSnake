@@ -25,13 +25,13 @@ class GameField(object):
             ax = random.randint(0,40)
             ay = random.randint(0,30)
             if self.gamematrix[ay][ax] == 0:
-                self.apples.append([ay, ax])
+                self.apples.append([ax, ay])
                 canspawn = True
 
     def delapple(self, x, y):
         for i in self.apples:
             if i[0] == y and i[1] == x:
-                self.apples.remove([y, x])
+                self.apples.remove([x, y])
 
 
     def updateapples(self):
@@ -65,36 +65,34 @@ class Player:
                 else:
                     pid = str(uuid.uuid4())[:5]
 
-                self.spawnpos(gf.gamematrix)
+            #self.spawnpos(gf.gamematrix)
 
             gf.playerslist[pid] = self
             return pid
 
         def spawnpos(self, matrix):
 
-            #y and x перепутал
 
-            x = random.randint(3, GameField.height / GameField.blocksize - 3)
-            y = random.randint(3, GameField.width / GameField.blocksize - 4)
-            if x < GameField.height / 2:
-                k = -1
-            else:
-                k = 1
+
+            #y and x перепутал
 
             free = False
             while not free:
+                y = random.randint(3,GameField.height / GameField.blocksize - 3)
+                x = random.randint(3,GameField.width / GameField.blocksize - 4)
+                if x > GameField.height / (2 * GameField.blocksize):
+                    k = -1
+                else:
+                    k = 1
+
                 if matrix[x][y] == 0 and matrix[x-1*k][y] == 0 and matrix[x-2*k][y] == 0:
                     self.head = [x, y]
                     matrix[x][y] = "-" + self.id
                     self.body.append([x-1*k, y])
                     self.body.append([x-2*k, y])
-                    matrix[x - 1 * k][y], matrix[x - 2 * k][y] = self.id, self.id
+                    matrix[x - 1 * k][y] = self.id
+                    matrix[x - 2 * k][y] = self.id
                     self.vector = [k, 0]
                     free = True
-                else:
-                    x = random.randint(GameField.height / GameField.blocksize)
-                    y = random.randint(3, GameField.width / GameField.blocksize - 4)
-                    if x > GameField.height / 2:
-                        k = -1
-                    else:
-                        k = 1
+
+            pass

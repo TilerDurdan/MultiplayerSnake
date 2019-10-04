@@ -18,6 +18,7 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
     global maingame
     #для теста, добавляю в вызов curentplayer и пробую его вместо maingame.playerslist отправить
     conn.send(pickle.dumps(curplayer))
+    cur_id = curplayer.id
     reply = ""
     while True:
         try:
@@ -25,6 +26,7 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
 
             if not data:
                 print("Disconnected")
+
                 break
             else:
                 event.wait()
@@ -39,21 +41,43 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
 
                 mainq.put('Update')
                 event.wait()
-
-
+                if type(data) != type(curplayer):
+                    maingame.playerslist[cur_id].vector[0] = data[1][0]
+                    maingame.playerslist[cur_id].vector[1] = data[1][1]
+                    moveplayer(maingame, cur_id)
                 reply = maingame.playerslist
 
                 print("Received: ", data)
-                print("Sending : ", reply)
+                print("Sending : ", reply, maingame.playerslist[cur_id].vector)
 
             conn.sendall(pickle.dumps(reply))
         except error as e:
             print(e)
-            #break
+            maingame.playerslist.pop(cur_id)
+            break
+        except EOFError:
+            print('NO DATA! Player close window')
+            maingame.playerslist.pop(cur_id)
+            break
 
     print("Lost connection")
     conn.close()
     return maingame
+
+
+def moveplayer(game, pid):
+
+    game.gamematrix[game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][0]][game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][1]] = 0
+
+    for i in range(len(game.playerslist[pid].body) - 1,0,-1):
+        game.playerslist[pid].body[i][0], game.playerslist[pid].body[i][1] = game.playerslist[pid].body[i - 1][0], game.playerslist[pid].body[i - 1][1]
+
+    game.playerslist[pid].body[0][0],game.playerslist[pid].body[0][1] = game.playerslist[pid].head[0],game.playerslist[pid].head[1]
+    game.playerslist[pid].head[0],game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0],game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
+
+    # не забыть поменять матрицу
+    game.gamematrix[game.playerslist[pid].head[0]][game.playerslist[pid].head[1]] = "-" + pid
+    game.gamematrix[game.playerslist[pid].body[0][0]][game.playerslist[pid].body[0][1]] = pid
 
 
 def get_ip():
