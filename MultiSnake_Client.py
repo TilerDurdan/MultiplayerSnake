@@ -3,6 +3,7 @@ from tkinter import * #Tk, Canvas, messagebox
 import random
 from Multisnake_network import Network
 import Multisnake_Gamefield
+import time
 
 
 class SPlayer(object):
@@ -61,23 +62,28 @@ def main():
 
     for i in res.keys():
 
-        if i == "apples":
-            for j in res["apples"]:
-                drawapple(j)
-
-        if i == my_id:
-            drawhead(res[i].head, True)
-            for j in res[i].body:
-                drawbody(j, True)
+        if i == "apple":
+            if len(i)>0:
+                for j in res["apple"]:
+                    drawapple(j)
+            else:
+                c.delete("apple")
         else:
-            drawhead(res[i].head, False)
-            for j in res[i].body:
-                drawbody(j, False)
+
+            if i == my_id:
+                drawhead(res[i].head, True)
+                for j in res[i].body:
+                    drawbody(j, True)
+            else:
+                drawhead(res[i].head, False)
+                for j in res[i].body:
+                    drawbody(j, False)
 
     root.after(200, main)
 
 
 def changevector(event):
+
     if str(event.keysym) in SnakeMoves:
         if myPlayer.vector[0] == -1 * SnakeMoves[str(event.keysym)][0] or myPlayer.vector[1] == -1 * \
                 SnakeMoves[str(event.keysym)][1]:
@@ -108,6 +114,7 @@ def drawbody(coords, mine):
                        coords[1] * BlockSize + BlockSize, width=1, outline=background, fill=bodycolor, tag="body")
 
 def drawapple(coords):
+    c.delete("apple")
     c.create_oval(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
                   coords[1] * BlockSize + BlockSize, width=0, fill="#c92435", tag="apple")
 
@@ -128,7 +135,7 @@ for i in ans.keys():
 
 
 
-WIDTH, HEIGHT = 600, 800
+WIDTH, HEIGHT = 800, 600
 BlockSize = 20
 apple = []
 background = "#3caa3c"

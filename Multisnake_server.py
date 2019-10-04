@@ -37,14 +37,27 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
                 finally:
                     lock.release()
 
-                '''myq.put(data.list[-1])'''
+
 
                 mainq.put('Update')
                 event.wait()
                 if type(data) != type(curplayer):
                     maingame.playerslist[cur_id].vector[0] = data[1][0]
                     maingame.playerslist[cur_id].vector[1] = data[1][1]
-                    moveplayer(maingame, cur_id)
+                    if not deadlycollision(maingame, cur_id):
+                        moveplayer(maingame, cur_id)
+                        for i in maingame.apples:
+                            if i[0] == maingame.playerslist[cur_id].head[0] and i[1] == \
+                                    maingame.playerslist[cur_id].head[1]:
+                                maingame.delapple(i[0],i[1])
+                                maingame.spawnapple()
+                                maingame.updateapples()
+                                extendplayer(maingame,cur_id)
+                    else:
+                        playerdead(maingame, cur_id)
+
+
+
                 reply = maingame.playerslist
 
                 print("Received: ", data)
@@ -64,10 +77,46 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
     conn.close()
     return maingame
 
+def playerdead(game, pid):
+    pass
+
+
+def deadlycollision(game, pid):
+
+    newx = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0]
+    newy = game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
+
+    if newx < 0 or newx > (game.width / game.blocksize) -1:
+        return True
+
+    if newy < 0 or newy > (game.height / game.blocksize) -1:
+        return True
+
+    if game.gamematrix[newy][newx] == 0 or game.gamematrix[newy][newx] == "@":
+        pass
+    else:
+        return True
+
+    return False
+
+def extendplayer(game, pid):
+
+    #вставили голову в тело на 0 позицию, переписали матрицу
+
+    game.playerslist[pid].body.insert(0, [game.playerslist[pid].head[0], game.playerslist[pid].head[1]])
+    game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = pid
+
+    # двинули голову , переписали матрицу
+    game.playerslist[pid].head[0], game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0], game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
+
+    game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
+
+
+
 
 def moveplayer(game, pid):
 
-    game.gamematrix[game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][0]][game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][1]] = 0
+    game.gamematrix[game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][1]][game.playerslist[pid].body[len(game.playerslist[pid].body) - 1][0]] = 0
 
     for i in range(len(game.playerslist[pid].body) - 1,0,-1):
         game.playerslist[pid].body[i][0], game.playerslist[pid].body[i][1] = game.playerslist[pid].body[i - 1][0], game.playerslist[pid].body[i - 1][1]
@@ -76,8 +125,15 @@ def moveplayer(game, pid):
     game.playerslist[pid].head[0],game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0],game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
 
     # не забыть поменять матрицу
-    game.gamematrix[game.playerslist[pid].head[0]][game.playerslist[pid].head[1]] = "-" + pid
-    game.gamematrix[game.playerslist[pid].body[0][0]][game.playerslist[pid].body[0][1]] = pid
+    game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
+    game.gamematrix[game.playerslist[pid].body[0][1]][game.playerslist[pid].body[0][0]] = pid
+
+
+def fixmatrix(game):
+    for i in range(40):
+        for j in range(30):
+            if game.gamematrix[j][i] == "-" or game.gamematrix[j][i] == "":
+                game.gamematrix[j][i] = 0
 
 
 def get_ip():
@@ -118,8 +174,9 @@ print("Waiting for a connection, Server Started")
 # служебные штуки для очередей и событий
 lock = Lock()
 maingame = Multisnake_Gamefield.GameField()
-
-
+maingame.spawnapple()
+maingame.updateapples()
+fixmatrix(maingame)
 event = threading.Event()
 
 myq = queue.Queue()

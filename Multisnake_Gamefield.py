@@ -22,16 +22,18 @@ class GameField(object):
 
         canspawn = False
         while not canspawn:
-            ax = random.randint(0,40)
-            ay = random.randint(0,30)
-            if self.gamematrix[ay][ax] == 0:
+            ay = random.randint(0,39)
+            ax = random.randint(0,29)
+            if self.gamematrix[ax][ay] == 0:
                 self.apples.append([ax, ay])
+                self.gamematrix[ax][ay] = "@"
                 canspawn = True
 
     def delapple(self, x, y):
         for i in self.apples:
             if i[0] == y and i[1] == x:
-                self.apples.remove([x, y])
+                self.apples.remove(i)
+                #self.gamematrix[x][y] = 0
 
 
     def updateapples(self):
@@ -85,13 +87,13 @@ class Player:
                 else:
                     k = 1
 
-                if matrix[x][y] == 0 and matrix[x-1*k][y] == 0 and matrix[x-2*k][y] == 0:
+                if matrix[y][x] == 0 and matrix[y][x-1*k] == 0 and matrix[y][x-2*k] == 0:
                     self.head = [x, y]
-                    matrix[x][y] = "-" + self.id
+                    matrix[y][x] = "-" + self.id
                     self.body.append([x-1*k, y])
                     self.body.append([x-2*k, y])
-                    matrix[x - 1 * k][y] = self.id
-                    matrix[x - 2 * k][y] = self.id
+                    matrix[y][x - 1 * k] = self.id
+                    matrix[y][x - 2 * k] = self.id
                     self.vector = [k, 0]
                     free = True
 
