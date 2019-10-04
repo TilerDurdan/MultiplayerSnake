@@ -54,14 +54,17 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
                                 maingame.updateapples()
                                 extendplayer(maingame,cur_id)
                     else:
+                        print('DEAD SNAKE!!!', maingame.playerslist[cur_id].vector)
+                        maingame.playerslist[cur_id].vector = [0, 0]
                         playerdead(maingame, cur_id)
+                        print('UNDEAD SNAKE!!!',maingame.playerslist[cur_id].vector)
 
 
 
                 reply = maingame.playerslist
 
                 print("Received: ", data)
-                print("Sending : ", reply, maingame.playerslist[cur_id].vector)
+                print("Sending : ", reply)
 
             conn.sendall(pickle.dumps(reply))
         except error as e:
@@ -78,7 +81,14 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
     return maingame
 
 def playerdead(game, pid):
-    pass
+
+    for i in range(40):
+        for j in range(30):
+            if game.gamematrix[j][i] == "-" + pid or game.gamematrix[j][i] == pid:
+                game.gamematrix[j][i] = 0
+
+    game.playerslist[pid].spawnpos(game.gamematrix)
+
 
 
 def deadlycollision(game, pid):

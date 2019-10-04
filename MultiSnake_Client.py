@@ -79,7 +79,7 @@ def main():
                 for j in res[i].body:
                     drawbody(j, False)
 
-    root.after(200, main)
+    root.after(150, main)
 
 
 def changevector(event):

@@ -22,8 +22,8 @@ class GameField(object):
 
         canspawn = False
         while not canspawn:
-            ay = random.randint(0,39)
-            ax = random.randint(0,29)
+            ay = random.randint(1,39)
+            ax = random.randint(1,29)
             if self.gamematrix[ax][ay] == 0:
                 self.apples.append([ax, ay])
                 self.gamematrix[ax][ay] = "@"
@@ -74,10 +74,9 @@ class Player:
 
         def spawnpos(self, matrix):
 
-
-
             #y and x перепутал
-
+            self.body = []
+            self.vector = []
             free = False
             while not free:
                 y = random.randint(3,GameField.height / GameField.blocksize - 3)
@@ -98,3 +97,6 @@ class Player:
                     free = True
 
             pass
+
+
+
