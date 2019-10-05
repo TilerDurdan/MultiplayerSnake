@@ -49,15 +49,17 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
                         for i in maingame.apples:
                             if i[0] == maingame.playerslist[cur_id].head[0] and i[1] == \
                                     maingame.playerslist[cur_id].head[1]:
-                                maingame.delapple(i[0],i[1])
+                                maingame.delapple(i[0], i[1])
                                 maingame.spawnapple()
                                 maingame.updateapples()
-                                extendplayer(maingame,cur_id)
+                                extendplayer(maingame, cur_id)
                     else:
-                        print('DEAD SNAKE!!!', maingame.playerslist[cur_id].vector)
-                        maingame.playerslist[cur_id].vector = [0, 0]
+                        maingame.spawnappleXY(maingame.playerslist[cur_id].head[0], maingame.playerslist[cur_id].head[1])
+                        maingame.updateapples()
                         playerdead(maingame, cur_id)
-                        print('UNDEAD SNAKE!!!',maingame.playerslist[cur_id].vector)
+                        nextx = maingame.playerslist[cur_id].head[0] + maingame.playerslist[cur_id].vector[0]
+                        if nextx == maingame.playerslist[cur_id].body[0][0]:
+                            maingame.playerslist[cur_id].vector = [-1*maingame.playerslist[cur_id].vector[0], 0]
 
 
 
@@ -88,6 +90,7 @@ def playerdead(game, pid):
                 game.gamematrix[j][i] = 0
 
     game.playerslist[pid].spawnpos(game.gamematrix)
+
 
 
 
@@ -166,8 +169,8 @@ whereami = get_ip()
 # пишем где мы
 print(f"Server started at {whereami[0]}:{whereami[1]}")
 
-server = "127.0.0.1"#str(whereami[0])
-port = 5555#whereami[1]
+server = str(whereami[0])
+port = whereami[1]
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

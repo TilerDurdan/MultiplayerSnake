@@ -13,27 +13,40 @@ class GameField(object):
     apples = []
 
     def __init__(self):
-
-        #self.gamematrix = [[0 for i in range(40)] for j in range(30)]
-        #self.playerslist = {}
         pass
 
     def spawnapple(self):
 
         canspawn = False
         while not canspawn:
-            ay = random.randint(1,39)
-            ax = random.randint(1,29)
-            if self.gamematrix[ax][ay] == 0:
+            ax = random.randint(1,38)
+            ay = random.randint(1,28)
+            if self.gamematrix[ay][ax] == 0:
                 self.apples.append([ax, ay])
-                self.gamematrix[ax][ay] = "@"
+                self.gamematrix[ay][ax] = "@"
                 canspawn = True
+
+    def spawnappleXY(self,x,y):
+
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+
+        self.apples.append([x,y])
+        self.gamematrix[y][x] = "@"
+        self.playerslist["apple"].append([x, y])
 
     def delapple(self, x, y):
         for i in self.apples:
-            if i[0] == y and i[1] == x:
+            if i[0] == x and i[1] == y:
                 self.apples.remove(i)
-                #self.gamematrix[x][y] = 0
+                #i[0] = 999
+                #i[1] = 999
+
+        for i in self.playerslist["apple"]:
+            if i[0] == y and i[1] == x:
+                self.playerslist["apple"].remove(i)
 
 
     def updateapples(self):
@@ -66,8 +79,6 @@ class Player:
                     set_id = True
                 else:
                     pid = str(uuid.uuid4())[:5]
-
-            #self.spawnpos(gf.gamematrix)
 
             gf.playerslist[pid] = self
             return pid

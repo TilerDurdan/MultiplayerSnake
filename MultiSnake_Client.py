@@ -60,26 +60,39 @@ def main():
     res = net.send([myPlayer.id, myPlayer.vector])
     c.delete("all")
 
+    applestring = "Apples:\n"
+
     for i in res.keys():
 
         if i == "apple":
-            if len(i)>0:
+            if len(i) > 0:
+                c.delete("apple")
                 for j in res["apple"]:
-                    drawapple(j)
+                    c.delete("applestring")
+
+
+                    applestring += str(j[0]) + " " + str(j[1]) + "\n"
+                drawapple(res["apple"])
+
             else:
                 c.delete("apple")
+                applestring = "Apples:\n"
         else:
 
             if i == my_id:
+                c.delete("snakepos")
                 drawhead(res[i].head, True)
+                snakepos = str(res[i].head[0]) + " | " + str(res[i].head[1])
+                myPlayer.vector[0], myPlayer.vector[1] = res[i].vector[0], res[i].vector[1]
                 for j in res[i].body:
                     drawbody(j, True)
             else:
                 drawhead(res[i].head, False)
                 for j in res[i].body:
                     drawbody(j, False)
-
-    root.after(150, main)
+    a = c.create_text(100,20,anchor="ne", text=applestring, tag="applelist")
+    s = c.create_text(100,10, anchor = "ne", text = "Snake: " + snakepos, tag="snakepos")
+    root.after(200, main)
 
 
 def changevector(event):
@@ -103,7 +116,6 @@ def drawhead(coords, mine):
                        coords[1] * BlockSize + BlockSize, width=1, outline=background, fill=headcolor, tag="myhead")
 
 
-
 def drawbody(coords, mine):
 
     if mine:
@@ -113,10 +125,12 @@ def drawbody(coords, mine):
     c.create_rectangle(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
                        coords[1] * BlockSize + BlockSize, width=1, outline=background, fill=bodycolor, tag="body")
 
-def drawapple(coords):
+
+def drawapple(list):
     c.delete("apple")
-    c.create_oval(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
-                  coords[1] * BlockSize + BlockSize, width=0, fill="#c92435", tag="apple")
+    for coords in list:
+        c.create_oval(coords[0] * BlockSize, coords[1] * BlockSize, coords[0] * BlockSize + BlockSize,
+                      coords[1] * BlockSize + BlockSize, width=0, fill="#c92435", tag="apple")
 
 
 conn_from_menu = firtsmenu()
@@ -124,14 +138,11 @@ conn_from_menu = firtsmenu()
 net = Network(conn_from_menu[0], conn_from_menu[1])
 
 p = net.getP()
-print(p)#.playerslist)
+
 ans = net.send(p)
 my_id = p.id
 my_vector = p.vector
 
-'''
-for i in ans.keys():
-    print(ans[i].id + "\n", str(ans[i].head[0]) + " " + str(ans[i].head[1]) + "\n", str(ans[i].vector[0]) + " " + str(ans[i].vector[1]))'''
 
 
 
@@ -149,7 +160,7 @@ if __name__ == '__main__':
     root.title("Multiplayer snake")
     CloseGame = False
     c = Canvas(root, width=WIDTH, height=HEIGHT, bg=background)
-    #score = c.create_text(100, 20, anchor="ne", text=f"Total apples: {apple[3]}", tag="score")
+
     c.grid()
 
     c.focus_set()
