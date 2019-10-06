@@ -32,15 +32,19 @@ def threaded_client(conn, maing, curplayer):
                     maingame.playerslist[cur_id].vector[0] = data[1][0]
                     maingame.playerslist[cur_id].vector[1] = data[1][1]
                     if not deadlycollision(maingame, cur_id):
-                        tail = maingame.playerslist[cur_id].body[len(maingame.playerslist[cur_id].body) - 1]
-                        moveplayer(maingame, cur_id)
+                        ateapple = False
+                       # moveplayer(maingame, cur_id)
                         for i in maingame.apples:
                             if i[0] == maingame.playerslist[cur_id].head[0] and i[1] == \
                                     maingame.playerslist[cur_id].head[1]:
                                 maingame.delapple(i[0], i[1])
                                 maingame.spawnapple()
                                 maingame.updateapples()
-                                extendplayer(maingame, cur_id,tail)
+                                ateapple = True
+                        if ateapple:
+                            extendplayer(maingame, cur_id)
+                        else:
+                            moveplayer(maingame, cur_id)
                     else:
                         maingame.spawnappleXY(maingame.playerslist[cur_id].head[0], maingame.playerslist[cur_id].head[1])
                         maingame.updateapples()
@@ -100,19 +104,16 @@ def deadlycollision(game, pid):
 
     return False
 
-def extendplayer(game, pid, tail):
-
-   # game.playerslist[pid].body.insert(0, [game.playerslist[pid].head[0], game.playerslist[pid].head[1]])
-
+def extendplayer(game, pid):
+    # вставили голову в тело на 0 позицию, переписали матрицу
+    game.playerslist[pid].body.insert(0, [game.playerslist[pid].head[0], game.playerslist[pid].head[1]])
+    game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = pid
+    # двинули голову , переписали матрицу
+    game.playerslist[pid].head[0], game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + \
+                                                                   game.playerslist[pid].vector[0], \
+                                                                   game.playerslist[pid].head[1] + \
+                                                                   game.playerslist[pid].vector[1]
     game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
-    game.playerslist[pid].body.append(tail)
-    game.gamematrix[tail[1]][tail[0]] = pid
-
-    #game.playerslist[pid].head[0], game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0], game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
-
-    #game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
-
-
 
 
 def moveplayer(game, pid):

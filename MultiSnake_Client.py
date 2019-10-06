@@ -1,9 +1,8 @@
 #Клиент для мультиплеера
-from tkinter import * #Tk, Canvas, messagebox
-import random
+from tkinter import *
 from Multisnake_network import Network
 import Multisnake_Gamefield
-import time
+import datetime
 
 
 class SPlayer(object):
@@ -96,8 +95,9 @@ def main():
 
 
 def changevector(event):
+    global timetochange
 
-    if str(event.keysym) in SnakeMoves:
+    if str(event.keysym) in SnakeMoves and timetochange <= datetime.datetime.now():
         if myPlayer.vector[0] == -1 * SnakeMoves[str(event.keysym)][0] or myPlayer.vector[1] == -1 * \
                 SnakeMoves[str(event.keysym)][1]:
             pass
@@ -105,6 +105,7 @@ def changevector(event):
             myPlayer.vector[0] = SnakeMoves[str(event.keysym)][0]
             myPlayer.vector[1] = SnakeMoves[str(event.keysym)][1]
 
+    timetochange = datetime.datetime.now() + datetime.timedelta(milliseconds=100)
 
 def drawhead(coords, mine):
     if mine == True:
@@ -152,6 +153,7 @@ apple = []
 background = "#3caa3c"
 SnakeMoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
 myPlayer = SPlayer(my_id, my_vector)
+timetochange = datetime.datetime.now()
 
 #         рисуем
 
@@ -168,6 +170,7 @@ if __name__ == '__main__':
     game_on = True
 
     main()
+
     c.bind("<KeyPress>", changevector)
 
     root.mainloop()
