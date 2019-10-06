@@ -41,8 +41,6 @@ class GameField(object):
         for i in self.apples:
             if i[0] == x and i[1] == y:
                 self.apples.remove(i)
-                #i[0] = 999
-                #i[1] = 999
 
         for i in self.playerslist["apple"]:
             if i[0] == y and i[1] == x:

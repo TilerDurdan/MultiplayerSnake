@@ -13,38 +13,26 @@ class Splayer(object):
     id = ''
     vector = []
 
-def threaded_client(conn, maing, curplayer, lock, mainq, event):
+def threaded_client(conn, maing, curplayer):
 
     global maingame
-    #для теста, добавляю в вызов curentplayer и пробую его вместо maingame.playerslist отправить
+
     conn.send(pickle.dumps(curplayer))
     cur_id = curplayer.id
     reply = ""
     while True:
         try:
             data = pickle.loads(conn.recv(1024))
-
             if not data:
                 print("Disconnected")
-
                 break
             else:
-                event.wait()
-                lock.acquire()
-                try:
-                    '''chat_server.add_msg(data.list[-1])
-                    print(f'Trying to add {data.list[-1]} by {current_process().name}')'''
-                finally:
-                    lock.release()
 
-
-
-                mainq.put('Update')
-                event.wait()
                 if type(data) != type(curplayer):
                     maingame.playerslist[cur_id].vector[0] = data[1][0]
                     maingame.playerslist[cur_id].vector[1] = data[1][1]
                     if not deadlycollision(maingame, cur_id):
+                        tail = maingame.playerslist[cur_id].body[len(maingame.playerslist[cur_id].body) - 1]
                         moveplayer(maingame, cur_id)
                         for i in maingame.apples:
                             if i[0] == maingame.playerslist[cur_id].head[0] and i[1] == \
@@ -52,7 +40,7 @@ def threaded_client(conn, maing, curplayer, lock, mainq, event):
                                 maingame.delapple(i[0], i[1])
                                 maingame.spawnapple()
                                 maingame.updateapples()
-                                extendplayer(maingame, cur_id)
+                                extendplayer(maingame, cur_id,tail)
                     else:
                         maingame.spawnappleXY(maingame.playerslist[cur_id].head[0], maingame.playerslist[cur_id].head[1])
                         maingame.updateapples()
@@ -112,17 +100,17 @@ def deadlycollision(game, pid):
 
     return False
 
-def extendplayer(game, pid):
+def extendplayer(game, pid, tail):
 
-    #вставили голову в тело на 0 позицию, переписали матрицу
-
-    game.playerslist[pid].body.insert(0, [game.playerslist[pid].head[0], game.playerslist[pid].head[1]])
-    game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = pid
-
-    # двинули голову , переписали матрицу
-    game.playerslist[pid].head[0], game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0], game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
+   # game.playerslist[pid].body.insert(0, [game.playerslist[pid].head[0], game.playerslist[pid].head[1]])
 
     game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
+    game.playerslist[pid].body.append(tail)
+    game.gamematrix[tail[1]][tail[0]] = pid
+
+    #game.playerslist[pid].head[0], game.playerslist[pid].head[1] = game.playerslist[pid].head[0] + game.playerslist[pid].vector[0], game.playerslist[pid].head[1] + game.playerslist[pid].vector[1]
+
+    #game.gamematrix[game.playerslist[pid].head[1]][game.playerslist[pid].head[0]] = "-" + pid
 
 
 
@@ -184,16 +172,13 @@ except socket.error as e:
 s.listen()
 print("Waiting for a connection, Server Started")
 
-# служебные штуки для очередей и событий
-lock = Lock()
+
+
 maingame = Multisnake_Gamefield.GameField()
 maingame.spawnapple()
 maingame.updateapples()
 fixmatrix(maingame)
-event = threading.Event()
 
-myq = queue.Queue()
-mainq = queue.Queue()
 
 # начало работы
 
@@ -207,17 +192,8 @@ if __name__ == '__main__':
         pl = Multisnake_Gamefield.Player(maingame)
         for i in range(30):
             print(maingame.gamematrix[i], end="\n")
-        newconnection = threading.Thread(target=threaded_client, args=(connection, maingame, pl, lock, mainq, event))
+        newconnection = threading.Thread(target=threaded_client, args=(connection, maingame, pl,))
 
         newconnection.start()
-        event.set()
-        if not mainq.empty():
-            mainq.get()
 
-
-            # вот тут из очереди надо будет гонять обновление карты относительно действий игроков из очереди
-            while not myq.empty():
-                taken = myq.get()
-                chat_server.add_msg(taken)
-                print(taken, ' from myq')
-        newconnection.join(1)
+       # newconnection.join()
