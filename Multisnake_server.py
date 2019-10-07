@@ -159,7 +159,7 @@ def get_ip():
 # записали локальный адрес в список
 whereami = get_ip()
 # пишем где мы
-print(f"Server started at {whereami[0]}:{whereami[1]}")
+print("Server started at " + str(whereami[0]) + " : " + str(whereami[1]))
 
 server = str(whereami[0])
 port = whereami[1]
