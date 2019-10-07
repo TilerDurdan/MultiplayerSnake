@@ -48,7 +48,9 @@ def threaded_client(conn, maing, curplayer):
                     else:
                         maingame.spawnappleXY(maingame.playerslist[cur_id].head[0], maingame.playerslist[cur_id].head[1])
                         maingame.updateapples()
+
                         playerdead(maingame, cur_id)
+
                         nextx = maingame.playerslist[cur_id].head[0] + maingame.playerslist[cur_id].vector[0]
                         if nextx == maingame.playerslist[cur_id].body[0][0]:
                             maingame.playerslist[cur_id].vector = [-1*maingame.playerslist[cur_id].vector[0], 0]
@@ -96,11 +98,12 @@ def deadlycollision(game, pid):
 
     if newy < 0 or newy > (game.height / game.blocksize) -1:
         return True
-
-    if game.gamematrix[newy][newx] == 0 or game.gamematrix[newy][newx] == "@":
-        pass
-    else:
+    nextfield = game.gamematrix[newy][newx]
+    if not(nextfield == 0 or nextfield == "@"):
+        if nextfield.startswith("-"):
+            playerdead(game, nextfield[1:])
         return True
+
 
     return False
 
@@ -191,8 +194,7 @@ if __name__ == '__main__':
         connection, addr = s.accept()
         print("Connected to:", addr)
         pl = Multisnake_Gamefield.Player(maingame)
-        for i in range(30):
-            print(maingame.gamematrix[i], end="\n")
+
         newconnection = threading.Thread(target=threaded_client, args=(connection, maingame, pl,))
 
         newconnection.start()
