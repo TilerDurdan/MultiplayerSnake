@@ -104,8 +104,9 @@ def changevector(event):
         else:
             myPlayer.vector[0] = SnakeMoves[str(event.keysym)][0]
             myPlayer.vector[1] = SnakeMoves[str(event.keysym)][1]
+            timetochange = datetime.datetime.now() + datetime.timedelta(milliseconds=150)
 
-    timetochange = datetime.datetime.now() + datetime.timedelta(milliseconds=100)
+
 
 def drawhead(coords, mine):
     if mine == True:
@@ -134,32 +135,33 @@ def drawapple(list):
                       coords[1] * BlockSize + BlockSize, width=0, fill="#c92435", tag="apple")
 
 
-conn_from_menu = firtsmenu()
+if __name__ == '__main__':
+    conn_from_menu = firtsmenu()
 
-net = Network(conn_from_menu[0], conn_from_menu[1])
+    net = Network(conn_from_menu[0], conn_from_menu[1])
 
-p = net.getP()
+    p = net.getP()
 
-ans = net.send(p)
-my_id = p.id
-my_vector = p.vector
-
-
+    ans = net.send(p)
+    my_id = p.id
+    my_vector = p.vector
 
 
-WIDTH, HEIGHT = 800, 600
-BlockSize = 20
-apple = []
-background = "#3caa3c"
-SnakeMoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
-myPlayer = SPlayer(my_id, my_vector)
-timetochange = datetime.datetime.now()
+
+
+    WIDTH, HEIGHT = 800, 600
+    BlockSize = 20
+    apple = []
+    background = "#3caa3c"
+    SnakeMoves = {"Up": [0, -1], "Down": [0, 1], "Left": [-1, 0], "Right": [1, 0]}
+    myPlayer = SPlayer(my_id, my_vector)
+    timetochange = datetime.datetime.now()
 
 #         рисуем
 
-if __name__ == '__main__':
+
     root = Tk()
-    root.title("Multiplayer snake")
+    root.title("Multiplayer snake " + str(conn_from_menu[0]) + " : " + str(conn_from_menu[1]))
     CloseGame = False
     c = Canvas(root, width=WIDTH, height=HEIGHT, bg=background)
 
